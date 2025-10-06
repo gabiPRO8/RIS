@@ -354,16 +354,26 @@ def create_ris_model(ris_type, num_elements, **kwargs):
     Returns:
         RISModel instance
     """
+    # Extract common parameters
+    element_spacing = kwargs.pop('element_spacing', 0.5)
+    
     if ris_type == "constant_phase":
-        return ConstantPhaseRIS(num_elements, **kwargs)
+        constant_phase = kwargs.pop('constant_phase', 0.0)
+        return ConstantPhaseRIS(num_elements, element_spacing=element_spacing, 
+                               constant_phase=constant_phase)
     elif ris_type == "ttd":
-        return TrueTimeDelayRIS(num_elements, **kwargs)
+        carrier_frequency = kwargs.pop('carrier_frequency', 3.5e9)
+        return TrueTimeDelayRIS(num_elements, element_spacing=element_spacing,
+                               carrier_frequency=carrier_frequency)
     elif ris_type == "align":
-        return PhaseAlignedRIS(num_elements, **kwargs)
+        use_reference_subcarrier = kwargs.pop('use_reference_subcarrier', True)
+        return PhaseAlignedRIS(num_elements, element_spacing=element_spacing,
+                              use_reference_subcarrier=use_reference_subcarrier)
     elif ris_type == "random":
-        return RandomPhaseRIS(num_elements, **kwargs)
+        seed = kwargs.pop('seed', None)
+        return RandomPhaseRIS(num_elements, element_spacing=element_spacing, seed=seed)
     elif ris_type == "identity":
         # Identity is just constant phase with phase = 0
-        return ConstantPhaseRIS(num_elements, constant_phase=0.0, **kwargs)
+        return ConstantPhaseRIS(num_elements, element_spacing=element_spacing, constant_phase=0.0)
     else:
         raise ValueError(f"Unknown RIS type: {ris_type}")
